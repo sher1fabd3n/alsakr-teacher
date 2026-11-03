@@ -118,22 +118,28 @@ class _TeacherExamGradesScreenState extends State<TeacherExamGradesScreen> {
     }
   }
 
-  Future<void> _save({bool submit = false}) async {
+  num? _parseScore(String? raw) {
+    final text = (raw ?? '').trim().replaceAll(',', '.').replaceAll('٫', '.').replaceAll('،', '.');
+    if (text.isEmpty) return null;
+    return num.tryParse(text);
+  }
+
+  Future<void> _save() async {
     if (_examId == null || _classId == null || _sheet == null) return;
     setState(() => _saving = true);
     try {
       final items = _scores.entries
           .map((e) => {
                 'studentId': e.key,
-                'score': num.tryParse(e.value.text.trim()),
-                'yearWorkScore': num.tryParse(_yearWorks[e.key]?.text.trim() ?? ''),
+                'score': _parseScore(e.value.text),
+                'yearWorkScore': _parseScore(_yearWorks[e.key]?.text),
               })
           .toList();
-      final service = context.read<EducationService>();
-      var msg = await service.saveControlGrades(examId: _examId!, classId: _classId!, items: items);
-      if (submit) {
-        msg = await service.submitControlGrades(examId: _examId!, classId: _classId!);
-      }
+      final msg = await context.read<EducationService>().saveControlGrades(
+            examId: _examId!,
+            classId: _classId!,
+            items: items,
+          );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       await _loadSheet();
@@ -208,23 +214,9 @@ class _TeacherExamGradesScreenState extends State<TeacherExamGradesScreen> {
                           _gradeCard(Map<String, dynamic>.from(row)),
                         const SizedBox(height: 16),
                         if (_sheet!['canEdit'] == true)
-                          Row(
-                            children: [
-                              Expanded(
-                                child: FilledButton(
-                                  onPressed: _saving ? null : () => _save(),
-                                  child: const Text('حفظ'),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: FilledButton(
-                                  onPressed: _saving ? null : () => _save(submit: true),
-                                  style: FilledButton.styleFrom(backgroundColor: AppColors.accent),
-                                  child: const Text('إرسال للاعتماد'),
-                                ),
-                              ),
-                            ],
+                          FilledButton(
+                            onPressed: _saving ? null : _save,
+                            child: const Text('حفظ'),
                           ),
                       ],
                     ],
@@ -253,7 +245,7 @@ class _TeacherExamGradesScreenState extends State<TeacherExamGradesScreen> {
             TextField(
               controller: _scores[id],
               enabled: _sheet?['canEdit'] == true,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(labelText: 'الدرجة / ${row['maxScore']}'),
             ),
             if (showYear) ...[
@@ -261,7 +253,7 @@ class _TeacherExamGradesScreenState extends State<TeacherExamGradesScreen> {
               TextField(
                 controller: _yearWorks[id],
                 enabled: _sheet?['canEdit'] == true,
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(labelText: 'أعمال السنة / ${row['yearWorkMax']}'),
               ),
             ],

@@ -13,6 +13,7 @@ import '../../features/education/services/education_service.dart';
 import '../../services/student_services.dart';
 import '../../features/communication/screens/teacher_reports_screen.dart';
 import '../auth/login_screen.dart';
+import 'teacher_change_password_screen.dart';
 
 class TeacherAccountScreen extends StatefulWidget {
   const TeacherAccountScreen({super.key});
@@ -303,6 +304,49 @@ class _TeacherAccountScreenState extends State<TeacherAccountScreen> {
                                     ].where((e) => e.isNotEmpty).join(' • '),
                                   ),
                                 ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    FadeSlideIn(
+                      child: AppCard(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const TeacherChangePasswordScreen(),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Icon(Icons.lock_reset_rounded, color: AppColors.primary),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'تغيير كلمة المرور',
+                                    style: GoogleFonts.cairo(fontWeight: FontWeight.w800),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'حدّث كلمة المرور الخاصة بحسابك',
+                                    style: GoogleFonts.cairo(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.chevron_left_rounded),
                           ],
                         ),
                       ),

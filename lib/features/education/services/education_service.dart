@@ -146,6 +146,23 @@ class EducationService {
     }
   }
 
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _apiClient.dio.post(
+        '/api/education/teacher/change-password',
+        data: {
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+        },
+      );
+    } on DioException catch (e) {
+      throw Exception(_apiClient.extractErrorMessage(e));
+    }
+  }
+
   Future<List<TeacherAssignment>> getMyAssignments({int? academicYearId}) async {
     try {
       final response = await _apiClient.dio.get(
